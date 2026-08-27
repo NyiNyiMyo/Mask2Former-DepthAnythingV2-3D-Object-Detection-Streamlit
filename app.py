@@ -3,7 +3,7 @@ import numpy as np
 import streamlit as st
 from PIL import Image
 from ultralytics import YOLO
-
+from huggingface_hub import hf_hub_download
 import onnxruntime
 import cv2
 
@@ -98,10 +98,14 @@ st.markdown(
 # ============================================================
 @st.cache_resource
 def load_model():
-    session = onnxruntime.InferenceSession("mask2former_coco.onnx", providers=['CUDAExecutionProvider',
+    with st.spinner(f"Downloading Models from Hugging Face... Please wait."):
+        file_path = hf_hub_download(repo_id="NyiNyiMyo/mask2former_coco", filename="mask2former_coco.onnx")
+    with st.spinner(f"Downloading Models from Hugging Face... Please wait."):
+        file_path2 = hf_hub_download(repo_id="NyiNyiMyo/depth_anything_v2_vitb", filename="depth_anything_v2_vitb.onnx")
+    session = onnxruntime.InferenceSession(file_path, providers=['CUDAExecutionProvider',
                                                                'CPUExecutionProvider'])
 
-    session2 = onnxruntime.InferenceSession("depth_anything_v2_vitb.onnx", providers=['CUDAExecutionProvider',
+    session2 = onnxruntime.InferenceSession(file_path2, providers=['CUDAExecutionProvider',
                                                                'CPUExecutionProvider'])
     return session, session2
 
