@@ -526,7 +526,7 @@ if input_image is not None:
         # COLORIZE (PANOPTIC)
         # -------------------------
         overlay = input_image.copy()
-        alpha = 0.5  # Adjusted slightly for cleaner blending visibility
+        alpha = 0.7  # Adjusted slightly for cleaner blending visibility
     
         for val in np.unique(panoptic_map):
             if val == 0:  # Skip background
