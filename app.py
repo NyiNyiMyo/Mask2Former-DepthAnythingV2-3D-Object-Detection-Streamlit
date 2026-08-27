@@ -104,7 +104,7 @@ model = load_model()
 # ============================================================
 with st.sidebar:
     st.markdown(
-        '<div class="sidebar-title">📟 Makers - 🚀</div>',
+        '<div class="sidebar-title">📟 Makers -   🚀</div>',
         unsafe_allow_html=True,
     )
     st.markdown("### ℹ️ Model Information")
@@ -112,7 +112,7 @@ with st.sidebar:
         """
         <div class="sidebar-item">
             <div class="sidebar-label">Models</div>
-            <div class="sidebar-value">Mask2Former & Depth Anything V2</div>
+            <div class="sidebar-value">Mask2Former & DepthAnythingV2</div>
         </div>
         <div class="sidebar-item">
             <div class="sidebar-label">Task</div>
@@ -353,8 +353,8 @@ with card1:
     st.markdown(
         """
         <div class="info-card">
-            <div class="info-value">Mask2Former & DepthAnythingV2</div>
-            <div class="info-label">Models</div>
+            <div class="info-value">Mask2Former</div>
+            <div class="info-label">Model</div>
         </div>
         """,
         unsafe_allow_html=True,
