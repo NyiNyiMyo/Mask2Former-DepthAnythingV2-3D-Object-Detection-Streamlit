@@ -9,7 +9,7 @@ from ultralytics import YOLO
 # ============================================================
 st.set_page_config(
     page_title="YOLOv26 | SIS Instance Segmentation",
-    page_icon="🔬",
+    page_icon="🧊",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -104,9 +104,10 @@ model = load_model()
 # ============================================================
 with st.sidebar:
     st.markdown(
-        '<div class="sidebar-title">🔬 Model Information</div>',
+        '<div class="sidebar-title">ℹ️ Model Information</div>',
         unsafe_allow_html=True,
     )
+    st.markdown("### ℹ️ Model Information")
     st.markdown(
         """
         <div class="sidebar-item">
@@ -129,7 +130,7 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
     st.divider()
-    st.markdown("### ⚙️ Inference Settings")
+    st.markdown("### 🎛️ Inference Settings")
     confidence = st.slider(
         "Confidence Threshold",
         min_value=0.05,
@@ -146,12 +147,12 @@ with st.sidebar:
 # Header
 # ============================================================
 st.markdown(
-    '<div class="main-title">🔬 YOLOv26 Instance Segmentation</div>',
+    '<div class="main-title">🧊 YOLOv26 Instance Segmentation</div>',
     unsafe_allow_html=True,
 )
 st.markdown(
     '<div class="subtitle">'
-    "Surgical Instruments Segmentation"
+    "🏞️Surgical Instruments Segmentation🛰️"
     "</div>",
     unsafe_allow_html=True,
 )
@@ -160,7 +161,7 @@ st.markdown(
 # Image Input
 # ============================================================
 st.markdown(
-    '<div class="section-title">📷 Input Image</div>',
+    '<div class="section-title">🗂️ Input Image</div>',
     unsafe_allow_html=True,
 )
 uploaded_file = st.file_uploader(
