@@ -98,16 +98,28 @@ st.markdown(
 # ============================================================
 @st.cache_resource
 def load_model():
-    return YOLO("yolo26s-seg.pt")
+    session = onnxruntime.InferenceSession("mask2former_coco.onnx", providers=['CUDAExecutionProvider',
+                                                               'CPUExecutionProvider'])
 
-model = load_model()
+    session2 = onnxruntime.InferenceSession("depth_anything_v2_vitb.onnx", providers=['CUDAExecutionProvider',
+                                                               'CPUExecutionProvider'])
+    return session, session2
+
+session, session2 = load_model()
+
+def softmax(x):
+    e_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
+    return e_x / e_x.sum(axis=-1, keepdims=True)
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-np.clip(x, -50, 50)))
 
 # ============================================================
 # Sidebar
 # ============================================================
 with st.sidebar:
     st.markdown(
-        '<div class="sidebar-title">📟 Makers - Deployment🚀</div>',
+        '<div class="sidebar-title">📟 Makers - Deploy 🚀</div>',
         unsafe_allow_html=True,
     )
     st.markdown("### ℹ️ Model Information")
@@ -216,14 +228,21 @@ if available_examples:
 # ============================================================
 input_image = None
 if uploaded_file is not None:
-    input_image = Image.open(uploaded_file).convert("RGB")
+    # input_image = Image.open(uploaded_file).convert("RGB")
+    input_image = cv2.imread(uploaded_file)
 elif selected_example is not None:
-    input_image = Image.open(selected_example).convert("RGB")
+    # input_image = Image.open(selected_example).convert("RGB")
+    input_image = cv2.imread(selected_example)
 
 # ============================================================
 # Run Inference
 # ============================================================
 if input_image is not None:
+    mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+    std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+    input_name = session.get_inputs()[0].name
+    input_name2 = session2.get_inputs()[0].name
+
     st.divider()
     st.markdown(
         '<div class="section-title">🎯 Results</div>',
@@ -231,18 +250,47 @@ if input_image is not None:
     )
     with st.spinner("Running Inference..."):
         start_time = time.perf_counter()
-        results = model.predict(
-            source=input_image,
-            conf=confidence,
-            save=False,
-            verbose=False,
-        )
+
+        img_resized = cv2.resize(input_image, (384, 384))
+        img_input = (img_resized[:, :, ::-1].astype(np.float32) ) / 255
+        img_input = (img_input - mean) / std
+        img_input = img_input.transpose(2, 0, 1)[np.newaxis, :]  # (1, 3, H, W)
+    
+        outputs = session.run(None, {input_name: img_input})
+    
+        img_rgb = cv2.cvtColor(input_image, cv2.COLOR_BGR2RGB)
+        img_resized = cv2.resize(img_rgb, (518, 518))
+        img_input = (img_resized[:, :, ::-1].astype(np.float32) ) / 255
+        img_input = (img_input - mean) / std
+        img_input = img_input.transpose(2, 0, 1)[np.newaxis, :]  # (1, 3, H, W)
+    
+        outputs2 = session2.run(None, {input_name2: img_input})
+
+        H, W = input_image.shape[:2]
+    
+        # -------------------------
+        # OUTPUTS
+        # -------------------------
+        cls_logits = outputs[0][0]     # (Q, C+1) -> (100, 134)
+        mask_logits_raw = outputs[1][0] # (Q, Hm, Wm) -> (100, 96, 96)
+    
+        probs = softmax(cls_logits)
+    
+        # Use classes 0 to 132 (ignoring the last index background class)
+        scores = np.max(probs[:, :-1], axis=1)
+        labels = np.argmax(probs[:, :-1], axis=1)
+    
+        keep = scores > confidence
+    
+        scores = scores[keep]
+        labels = labels[keep]
+        mask_logits_filtered = mask_logits_raw[keep]
+
         inference_time = time.perf_counter() - start_time
-    result = results[0]
     # --------------------------------------------------------
     # Visualization
     # --------------------------------------------------------
-    annotated_image_bgr = result.plot()
+    annotated_image_bgr = input_image
     annotated_image_rgb = annotated_image_bgr[..., ::-1]
 
     image_col1, image_col2 = st.columns(2)
@@ -266,37 +314,37 @@ if input_image is not None:
         '<div class="section-title">📊 Inference Statistics</div>',
         unsafe_allow_html=True,
     )
-    if result.boxes is not None:
-        num_instances = len(result.boxes)
-        if num_instances > 0:
-            class_ids = (
-                result.boxes.cls
-                .cpu()
-                .numpy()
-                .astype(int)
-            )
-            confidences = (
-                result.boxes.conf
-                .cpu()
-                .numpy()
-            )
-            detected_classes = [
-                result.names[class_id]
-                for class_id in class_ids
-            ]
-            unique_classes = list(
-                dict.fromkeys(detected_classes)
-            )
-            average_confidence = float(
-                np.mean(confidences)
-            )
-        else:
-            average_confidence = 0.0
-            unique_classes = []
-    else:
-        num_instances = 0
-        average_confidence = 0.0
-        unique_classes = []
+    # if result.boxes is not None:
+    #     num_instances = len(result.boxes)
+    #     if num_instances > 0:
+    #         class_ids = (
+    #             result.boxes.cls
+    #             .cpu()
+    #             .numpy()
+    #             .astype(int)
+    #         )
+    #         confidences = (
+    #             result.boxes.conf
+    #             .cpu()
+    #             .numpy()
+    #         )
+    #         detected_classes = [
+    #             result.names[class_id]
+    #             for class_id in class_ids
+    #         ]
+    #         unique_classes = list(
+    #             dict.fromkeys(detected_classes)
+    #         )
+    #         average_confidence = float(
+    #             np.mean(confidences)
+    #         )
+    #     else:
+    #         average_confidence = 0.0
+    #         unique_classes = []
+    # else:
+    #     num_instances = 0
+    #     average_confidence = 0.0
+    #     unique_classes = []
 
     st.markdown(
     """
@@ -308,39 +356,39 @@ if input_image is not None:
     """,
     unsafe_allow_html=True
     )
-    stat1, stat2, stat3, stat4 = st.columns(4)
+    # stat1, stat2, stat3, stat4 = st.columns(4)
 
-    with stat1:
-        st.metric(
-            "Instances",
-            num_instances,
-        )
-    with stat2:
-        st.metric(
-            "Classes",
-            len(unique_classes),
-        )
-    with stat3:
-        st.metric(
-            "Avg. Confidence",
-            f"{average_confidence:.2%}",
-        )
-    with stat4:
-        st.metric(
-            "Inference Time",
-            f"{inference_time * 1000:.1f} ms",
-        )
+    # with stat1:
+    #     st.metric(
+    #         "Instances",
+    #         num_instances,
+    #     )
+    # with stat2:
+    #     st.metric(
+    #         "Classes",
+    #         len(unique_classes),
+    #     )
+    # with stat3:
+    #     st.metric(
+    #         "Avg. Confidence",
+    #         f"{average_confidence:.2%}",
+    #     )
+    # with stat4:
+    #     st.metric(
+    #         "Inference Time",
+    #         f"{inference_time * 1000:.1f} ms",
+    #     )
 
     # ========================================================
     # Detected Classes
     # ========================================================
-    if unique_classes:
-        st.write("")
-        st.markdown("**Detected Classes**")
-        class_text = "  •  ".join(
-            unique_classes
-        )
-        st.info(class_text)
+    # if unique_classes:
+    #     st.write("")
+    #     st.markdown("**Detected Classes**")
+    #     class_text = "  •  ".join(
+    #         unique_classes
+    #     )
+    #     st.info(class_text)
 else:
     st.info(
         "Upload an image or select one of the example images."
