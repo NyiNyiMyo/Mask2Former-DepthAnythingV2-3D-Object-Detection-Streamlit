@@ -8,7 +8,7 @@ from ultralytics import YOLO
 # Page Configuration
 # ============================================================
 st.set_page_config(
-    page_title="YOLOv26 | SIS Instance Segmentation",
+    page_title="3D Object Detection",
     page_icon="🧊",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -104,33 +104,33 @@ model = load_model()
 # ============================================================
 with st.sidebar:
     st.markdown(
-        '<div class="sidebar-title">ℹ️ Model Information</div>',
+        '<div class="sidebar-title">📟 Makers - 🚀</div>',
         unsafe_allow_html=True,
     )
     st.markdown("### ℹ️ Model Information")
     st.markdown(
         """
         <div class="sidebar-item">
-            <div class="sidebar-label">Model</div>
-            <div class="sidebar-value">YOLOv26</div>
+            <div class="sidebar-label">Models</div>
+            <div class="sidebar-value">Mask2Former & Depth Anything V2</div>
         </div>
         <div class="sidebar-item">
             <div class="sidebar-label">Task</div>
-            <div class="sidebar-value">Instance Segmentation</div>
+            <div class="sidebar-value">Monocular 3D Object Detection</div>
         </div>
         <div class="sidebar-item">
             <div class="sidebar-label">Dataset</div>
-            <div class="sidebar-value">Surgical Instruments</div>
+            <div class="sidebar-value">COCO</div>
         </div>
         <div class="sidebar-item">
             <div class="sidebar-label">Framework</div>
-            <div class="sidebar-value">Ultralytics</div>
+            <div class="sidebar-value">ONNX</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
     st.divider()
-    st.markdown("### 🎛️ Inference Settings")
+    st.markdown("### 🎚️ Inference Settings")
     confidence = st.slider(
         "Confidence Threshold",
         min_value=0.05,
@@ -140,19 +140,19 @@ with st.sidebar:
     )
     st.divider()
     st.caption(
-        "YOLOv26 Instance Segmentation Inference"
+        "3D Object Detection with Panoptic Segmentation Fusion Inference"
     )
 
 # ============================================================
 # Header
 # ============================================================
 st.markdown(
-    '<div class="main-title">🧊 YOLOv26 Instance Segmentation</div>',
+    '<div class="main-title">🧊 3D Object Detection using DepthAnythingV2</div>',
     unsafe_allow_html=True,
 )
 st.markdown(
     '<div class="subtitle">'
-    "🏞️Surgical Instruments Segmentation🛰️"
+    "🏞️Panoptic Segmentation with Depth Estimation🛰️"
     "</div>",
     unsafe_allow_html=True,
 )
@@ -165,7 +165,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 uploaded_file = st.file_uploader(
-    "Upload a surgical image",
+    "Upload an image",
     type=["jpg", "jpeg", "png"],
     label_visibility="collapsed",
 )
@@ -223,10 +223,10 @@ elif selected_example is not None:
 if input_image is not None:
     st.divider()
     st.markdown(
-        '<div class="section-title">🎯 Segmentation Results</div>',
+        '<div class="section-title">🎯 Results</div>',
         unsafe_allow_html=True,
     )
-    with st.spinner("Running YOLOv26 inference..."):
+    with st.spinner("Running Inference..."):
         start_time = time.perf_counter()
         results = model.predict(
             source=input_image,
@@ -250,7 +250,7 @@ if input_image is not None:
             use_container_width=True,
         )
     with image_col2:
-        st.markdown("**YOLOv26 Segmentation**")
+        st.markdown("**3D Object Detection**")
         st.image(
             annotated_image_rgb,
             use_container_width=True,
@@ -333,7 +333,7 @@ if input_image is not None:
     # ========================================================
     if unique_classes:
         st.write("")
-        st.markdown("**Detected Instrument Classes**")
+        st.markdown("**Detected Classes**")
         class_text = "  •  ".join(
             unique_classes
         )
@@ -341,7 +341,7 @@ if input_image is not None:
 else:
     st.info(
         "Upload an image or select one of the example images."
-        # "above to run YOLOv26 instance segmentation."
+        # "above to run inference."
     )
 
 # ============================================================
@@ -353,8 +353,8 @@ with card1:
     st.markdown(
         """
         <div class="info-card">
-            <div class="info-value">YOLOv26</div>
-            <div class="info-label">Model</div>
+            <div class="info-value">Mask2Former & DepthAnythingV2</div>
+            <div class="info-label">Models</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -363,7 +363,7 @@ with card2:
     st.markdown(
         """
         <div class="info-card">
-            <div class="info-value">SIS</div>
+            <div class="info-value">COCO</div>
             <div class="info-label">Dataset</div>
         </div>
         """,
@@ -373,7 +373,7 @@ with card3:
     st.markdown(
         """
         <div class="info-card">
-            <div class="info-value">6</div>
+            <div class="info-value">133</div>
             <div class="info-label">Classes</div>
         </div>
         """,
@@ -383,8 +383,8 @@ with card4:
     st.markdown(
         """
         <div class="info-card">
-            <div class="info-value">Instance</div>
-            <div class="info-label">Segmentation</div>
+            <div class="info-value">Monocular 3D</div>
+            <div class="info-label">Object Detection</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -396,5 +396,5 @@ st.write("")
 # ============================================================
 st.divider()
 st.caption(
-    "YOLOv26 • Instance Segmentation • Surgical Instruments"
+    "DepthAnythingV2 • 3D Object Detection • COCO"
 )
