@@ -99,18 +99,17 @@ st.markdown(
 @st.cache_resource
 def load_hf_model_file():
     with st.spinner(f"Downloading Models from Hugging Face... Please wait."):
-        file_path = hf_hub_download(repo_id="NyiNyiMyo/mask2former_coco", filename="mask2former_coco.onnx")
-        data_path = hf_hub_download(repo_id="NyiNyiMyo/mask2former_coco", filename="mask2former_coco.onnx.data")
+        file_path = hf_hub_download(repo_id="NyiNyiMyo/mask2former_coco_tiny", filename="mask2former_coco_tiny.onnx")
+        data_path = hf_hub_download(repo_id="NyiNyiMyo/mask2former_coco_tiny", filename="mask2former_coco_tiny.onnx.data")
 
-    return file_path
+    session = onnxruntime.InferenceSession(file_path, providers=['CUDAExecutionProvider',
+                                                               'CPUExecutionProvider'])
+    
+    session2 = onnxruntime.InferenceSession("depth_anything_v2_vits.onnx", providers=['CUDAExecutionProvider',
+                                                               'CPUExecutionProvider'])
+    return session, session2
 
-file_path = load_hf_model_file()
-
-session = onnxruntime.InferenceSession(file_path, providers=['CUDAExecutionProvider',
-                                                           'CPUExecutionProvider'])
-
-session2 = onnxruntime.InferenceSession("depth_anything_v2_vits.onnx", providers=['CUDAExecutionProvider',
-                                                           'CPUExecutionProvider'])
+session, session2 = load_hf_model_file()
 
 def softmax(x):
     e_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
