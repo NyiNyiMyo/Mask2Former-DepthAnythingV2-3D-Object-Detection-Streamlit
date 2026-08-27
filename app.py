@@ -4,6 +4,9 @@ import streamlit as st
 from PIL import Image
 from ultralytics import YOLO
 
+import onnxruntime
+import cv2
+
 # ============================================================
 # Page Configuration
 # ============================================================
@@ -104,7 +107,7 @@ model = load_model()
 # ============================================================
 with st.sidebar:
     st.markdown(
-        '<div class="sidebar-title">📟 Makers -   🚀</div>',
+        '<div class="sidebar-title">📟 Makers - Deployment🚀</div>',
         unsafe_allow_html=True,
     )
     st.markdown("### ℹ️ Model Information")
