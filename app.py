@@ -2,7 +2,6 @@ import time
 import numpy as np
 import streamlit as st
 from PIL import Image
-from ultralytics import YOLO
 from huggingface_hub import hf_hub_download
 import onnxruntime
 import cv2
@@ -431,8 +430,7 @@ if available_examples:
 # ============================================================
 input_image = None
 if uploaded_file is not None:
-    # input_image = Image.open(uploaded_file).convert("RGB")
-    input_image = cv2.imread(uploaded_file)
+    input_image = Image.open(uploaded_file)
 elif selected_example is not None:
     # input_image = Image.open(selected_example).convert("RGB")
     input_image = cv2.imread(selected_example)
