@@ -181,6 +181,8 @@ example_files = [
     "sample6.jpg",
     "sample7.jpg",
     "sample8.jpg",
+    "sample9.jpg",
+    "sample10.jpg",
 ]
 available_examples = [
     file for file in example_files
@@ -192,7 +194,7 @@ if available_examples:
         '<div class="section-title">🖼️ Try an Example</div>',
         unsafe_allow_html=True,
     )
-    example_cols = st.columns(8) # st.columns(len(available_examples))
+    example_cols = st.columns(10) # st.columns(len(available_examples))
     for i, example in enumerate(available_examples):
         with example_cols[i]:
             st.image(
