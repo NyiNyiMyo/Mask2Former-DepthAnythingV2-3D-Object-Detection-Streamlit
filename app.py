@@ -565,11 +565,18 @@ if input_image is not None:
         # -------------------------
         # DRAW BOXES (Things only)
         # -------------------------
+        num_instances = 0
+        confidences = []
+        average_confidence = 0.0
+        detected_classes = []
+        unique_classes = []
+        
         for cls, mask, score in things_instances:
             ys, xs = np.where(mask)
     
             if len(xs) == 0:
                 continue
+            num_instances += 1
     
             x1, y1 = xs.min(), ys.min()
             x2, y2 = xs.max(), ys.max()
@@ -580,6 +587,8 @@ if input_image is not None:
             else:
                 color = [0, 255, 0]
                 label_name = f"Class {cls}"
+            detected_classes.append(label_name)
+            confidences.append(score)
     
             bgr_color = tuple(int(c) for c in color[::-1])
     
@@ -700,37 +709,12 @@ if input_image is not None:
         '<div class="section-title">📊 Inference Statistics</div>',
         unsafe_allow_html=True,
     )
-    # if result.boxes is not None:
-    #     num_instances = len(result.boxes)
-    #     if num_instances > 0:
-    #         class_ids = (
-    #             result.boxes.cls
-    #             .cpu()
-    #             .numpy()
-    #             .astype(int)
-    #         )
-    #         confidences = (
-    #             result.boxes.conf
-    #             .cpu()
-    #             .numpy()
-    #         )
-    #         detected_classes = [
-    #             result.names[class_id]
-    #             for class_id in class_ids
-    #         ]
-    #         unique_classes = list(
-    #             dict.fromkeys(detected_classes)
-    #         )
-    #         average_confidence = float(
-    #             np.mean(confidences)
-    #         )
-    #     else:
-    #         average_confidence = 0.0
-    #         unique_classes = []
-    # else:
-    #     num_instances = 0
-    #     average_confidence = 0.0
-    #     unique_classes = []
+    unique_classes = list(
+        dict.fromkeys(detected_classes)
+    )
+    average_confidence = float(
+        np.mean(confidences)
+    )
 
     st.markdown(
     """
@@ -742,39 +726,39 @@ if input_image is not None:
     """,
     unsafe_allow_html=True
     )
-    # stat1, stat2, stat3, stat4 = st.columns(4)
+    stat1, stat2, stat3, stat4 = st.columns(4)
 
-    # with stat1:
-    #     st.metric(
-    #         "Instances",
-    #         num_instances,
-    #     )
-    # with stat2:
-    #     st.metric(
-    #         "Classes",
-    #         len(unique_classes),
-    #     )
-    # with stat3:
-    #     st.metric(
-    #         "Avg. Confidence",
-    #         f"{average_confidence:.2%}",
-    #     )
-    # with stat4:
-    #     st.metric(
-    #         "Inference Time",
-    #         f"{inference_time * 1000:.1f} ms",
-    #     )
+    with stat1:
+        st.metric(
+            "Instances",
+            num_instances,
+        )
+    with stat2:
+        st.metric(
+            "Classes",
+            len(unique_classes),
+        )
+    with stat3:
+        st.metric(
+            "Avg. Confidence",
+            f"{average_confidence:.2%}",
+        )
+    with stat4:
+        st.metric(
+            "Inference Time",
+            f"{inference_time * 1000:.1f} ms",
+        )
 
-    # ========================================================
-    # Detected Classes
-    # ========================================================
-    # if unique_classes:
-    #     st.write("")
-    #     st.markdown("**Detected Classes**")
-    #     class_text = "  •  ".join(
-    #         unique_classes
-    #     )
-    #     st.info(class_text)
+    ========================================================
+    Detected Classes
+    ========================================================
+    if unique_classes:
+        st.write("")
+        st.markdown("**Detected Classes**")
+        class_text = "  •  ".join(
+            unique_classes
+        )
+        st.info(class_text)
 else:
     st.info(
         "Upload an image or select one of the example images."
