@@ -430,7 +430,10 @@ if available_examples:
 # ============================================================
 input_image = None
 if uploaded_file is not None:
-    input_image = Image.open(uploaded_file)
+    pil_image = Image.open(uploaded_file)
+    
+    # Convert to OpenCV BGR format
+    input_image = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
 elif selected_example is not None:
     # input_image = Image.open(selected_example).convert("RGB")
     input_image = cv2.imread(selected_example)
