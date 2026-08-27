@@ -5,3 +5,4 @@ Pillow
 numpy
 onnx
 onnxruntime
+huggingface_hub
