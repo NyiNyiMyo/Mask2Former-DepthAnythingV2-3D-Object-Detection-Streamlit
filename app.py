@@ -688,7 +688,7 @@ if input_image is not None:
     with image_col2:
         st.markdown("**3D Object Detection**")
         st.image(
-            cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB)
+            cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB),
             use_container_width=True,
         )
     # ========================================================
