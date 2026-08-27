@@ -101,17 +101,15 @@ def load_hf_model_file():
     with st.spinner(f"Downloading Models from Hugging Face... Please wait."):
         file_path = hf_hub_download(repo_id="NyiNyiMyo/mask2former_coco", filename="mask2former_coco.onnx")
         data_path = hf_hub_download(repo_id="NyiNyiMyo/mask2former_coco", filename="mask2former_coco.onnx.data")
-    with st.spinner(f"Downloading Models from Hugging Face... Please wait."):
-        file_path2 = hf_hub_download(repo_id="NyiNyiMyo/depth_anything_v2_vitb", filename="depth_anything_v2_vitb.onnx")
 
-    return file_path, file_path2
+    return file_path
 
-file_path, file_path2 = load_hf_model_file()
+file_path = load_hf_model_file()
 
 session = onnxruntime.InferenceSession(file_path, providers=['CUDAExecutionProvider',
                                                            'CPUExecutionProvider'])
 
-session2 = onnxruntime.InferenceSession(file_path2, providers=['CUDAExecutionProvider',
+session2 = onnxruntime.InferenceSession("depth_anything_v2_vits.onnx", providers=['CUDAExecutionProvider',
                                                            'CPUExecutionProvider'])
 
 def softmax(x):
